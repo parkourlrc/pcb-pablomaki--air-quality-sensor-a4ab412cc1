@@ -7,6 +7,8 @@ forwards their measurements to Prometheus and MQTT.
 
 - **docker-compose.yml**: Defines the Matter server and the bridge service.
 - **Dockerfile**: Builds the image for the scripts in [scripts/](../scripts/).
+- **aqs_publish_update.sh**: Publishes a firmware update and installs it on
+  sensors over Matter OTA, see [Firmware updates](#firmware-updates).
 
 ## Services
 
@@ -50,3 +52,31 @@ Or scrape the metrics endpoint directly:
 ```bash
 curl -s http://localhost:8000/metrics | grep aqs_
 ```
+
+## Firmware updates
+
+The Matter server doubles as the OTA provider for the ESP32-C6 sensors. Its
+`--ota-provider-dir` is `./matter-server-data/updates`, which it only reads at
+startup. `aqs_publish_update.sh` does the whole round in one go: it fetches a
+variant's image and manifest from the build machine, checks the manifest
+against the image, replaces older images of that variant, restarts the server,
+and then updates the given nodes one at a time:
+
+```bash
+./aqs_publish_update.sh paavo@pc:Projects/air-quality-sensor/firmware-esp32c6/bin/aqs_001/aqs_001-1.2.0 3 4
+```
+
+The source is the image path without its extension; the `.ota` and `.json` from
+`firmware-esp32c6/bin/<variant>/` are both copied. A node only counts as updated
+once it reports the new version, which can take a few minutes after the
+transfer, and the script stops at the first node that does not get there, so a
+bad image never reaches the next sensor. `-s MINUTES` waits between nodes, to
+watch one sensor before updating the next. Look up node ids with:
+
+```bash
+docker exec -it aqs_matter_client python aqs_matter_nodes.py list
+```
+
+A transfer over Thread takes around seven minutes per sensor. The server's OTA
+provider only runs while it pushes an update, so sensors never fetch an image
+on their own, and publishing without node ids just stages it.
