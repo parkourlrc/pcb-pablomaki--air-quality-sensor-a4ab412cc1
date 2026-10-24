@@ -14,7 +14,16 @@ esp_err_t sensor_i2c_bus_init(i2c_master_bus_handle_t *bus)
         .glitch_ignore_cnt = 7,
         .flags.enable_internal_pullup = true,
     };
-    return i2c_new_master_bus(&config, bus);
+    esp_err_t err = i2c_new_master_bus(&config, bus);
+    if (err == ESP_OK)
+    {
+        err = board_keep_pin_in_sleep(BOARD_I2C_SDA_GPIO);
+    }
+    if (err == ESP_OK)
+    {
+        err = board_keep_pin_in_sleep(BOARD_I2C_SCL_GPIO);
+    }
+    return err;
 }
 
 esp_err_t sensor_i2c_add_device(i2c_master_bus_handle_t bus, uint16_t address, i2c_master_dev_handle_t *dev)

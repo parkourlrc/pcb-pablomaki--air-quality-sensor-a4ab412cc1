@@ -1,6 +1,7 @@
 #include <air_quality_monitor.h>
 
 #include <esp_log.h>
+#include <esp_pm.h>
 #include <nvs_flash.h>
 
 static const char *TAG = "app";
@@ -20,6 +21,22 @@ void app_main(void)
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
+
+#if CONFIG_PM_ENABLE
+    // Automatic light sleep whenever no task needs the CPU. Frequency scaling
+    // stays off, as in esp-matter's low power example: sleep is where the
+    // saving is.
+    const esp_pm_config_t pm_config = {
+        .max_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ,
+        .min_freq_mhz = CONFIG_ESP_DEFAULT_CPU_FREQ_MHZ,
+        .light_sleep_enable = true,
+    };
+    err = esp_pm_configure(&pm_config);
+    if (err != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to enable light sleep (err %d), running without it.", err);
+    }
+#endif
 
     int rc = init_air_quality_monitor();
     if (rc != 0)

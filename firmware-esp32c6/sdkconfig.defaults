@@ -38,6 +38,29 @@ CONFIG_LWIP_MULTICAST_PING=y
 CONFIG_USE_MINIMAL_MDNS=n
 CONFIG_ENABLE_EXTENDED_DISCOVERY=y
 
+# Sleepy end device (Matter ICD, short idle time). Between polls of its Thread
+# parent the radio is off and the chip in automatic light sleep, which cuts the
+# heat that otherwise skews the temperature reading. Incoming messages wait for
+# the next poll: up to the slow poll interval while idle, the fast poll interval
+# while active. Reports the device sends itself are not delayed.
+CONFIG_ENABLE_ICD_SERVER=y
+CONFIG_SUPPORT_ICD_MANAGEMENT_CLUSTER=y
+CONFIG_ICD_SLOW_POLL_INTERVAL_MS=5000
+CONFIG_ICD_FAST_POLL_INTERVAL_MS=200
+CONFIG_ICD_IDLE_MODE_INTERVAL_SEC=60
+CONFIG_ICD_ACTIVE_MODE_INTERVAL_MS=1000
+CONFIG_ICD_ACTIVE_MODE_THRESHOLD_MS=1000
+CONFIG_PM_ENABLE=y
+CONFIG_FREERTOS_USE_TICKLESS_IDLE=y
+CONFIG_FREERTOS_HZ=1000
+CONFIG_IEEE802154_SLEEP_ENABLE=y
+CONFIG_ESP_PHY_MAC_BB_PD=y
+CONFIG_BT_LE_SLEEP_ENABLE=y
+CONFIG_BT_LE_LP_CLK_SRC_MAIN_XTAL=y
+# The USB console cannot work through light sleep, so the chip stays awake
+# while a USB host is connected: debuggable on a PC, sleeping on a charger.
+CONFIG_USJ_NO_AUTO_LS_ON_CONNECTION=y
+
 # Matter OTA: requestor, .ota image generation and bootloader rollback. The
 # application confirms a new image once it is back on the network.
 CONFIG_ENABLE_OTA_REQUESTOR=y
@@ -109,7 +132,6 @@ CONFIG_SUPPORT_FIXED_LABEL_CLUSTER=n
 CONFIG_SUPPORT_FLOW_MEASUREMENT_CLUSTER=n
 CONFIG_SUPPORT_FORMALDEHYDE_CONCENTRATION_MEASUREMENT_CLUSTER=n
 CONFIG_SUPPORT_HEPA_FILTER_MONITORING_CLUSTER=n
-CONFIG_SUPPORT_ICD_MANAGEMENT_CLUSTER=n
 CONFIG_SUPPORT_ILLUMINANCE_MEASUREMENT_CLUSTER=n
 CONFIG_SUPPORT_JOINT_FABRIC_DATASTORE_CLUSTER=n
 CONFIG_SUPPORT_JOINT_FABRIC_ADMINISTRATOR_CLUSTER=n

@@ -81,6 +81,10 @@ int init_led_controller(void)
     };
 
     esp_err_t err = gpio_config(&config);
+    if (err == ESP_OK)
+    {
+        err = board_keep_pin_in_sleep(BOARD_USER_LED_GPIO);
+    }
     if (err != ESP_OK)
     {
         ESP_LOGE(TAG, "GPIO configuration for the LED failed (err %d).", err);

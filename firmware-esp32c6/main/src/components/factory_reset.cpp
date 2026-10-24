@@ -15,7 +15,9 @@ static const char *TAG = "factory_reset";
 #define APP_NVS_NAMESPACE "aqs"
 #define BOOT_COUNT_KEY "boot_count"
 
-#define BUTTON_POLL_INTERVAL_MS 50
+// Each poll wakes the chip from light sleep, so the interval is as long as a
+// multi-second hold allows.
+#define BUTTON_POLL_INTERVAL_MS 250
 #define BUTTON_PRESSED_LEVEL 0
 
 static esp_timer_handle_t clear_count_timer;
@@ -135,6 +137,10 @@ static esp_err_t init_button(void)
         .pull_up_en = GPIO_PULLUP_ENABLE,
     };
     esp_err_t err = gpio_config(&config);
+    if (err == ESP_OK)
+    {
+        err = board_keep_pin_in_sleep(BOARD_BOOT_BUTTON_GPIO);
+    }
     if (err != ESP_OK)
     {
         return err;
