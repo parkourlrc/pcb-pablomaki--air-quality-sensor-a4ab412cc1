@@ -1,0 +1,16 @@
+{
+  "modelVersion": {
+    "vid": 65521,
+    "pid": 32769,
+    "softwareVersion": 7,
+    "softwareVersionString": "1.2.0",
+    "cdVersionNumber": 1,
+    "softwareVersionValid": true,
+    "otaUrl": "file:///aqs_001-1.2.0.ota",
+    "otaFileSize": 1708113,
+    "otaChecksum": "J5uIRamdnFMvrPoe3paPoqDAFct+EP/u+y55pxo3MJY=",
+    "otaChecksumType": 1,
+    "minApplicableSoftwareVersion": 0,
+    "maxApplicableSoftwareVersion": 6
+  }
+}
